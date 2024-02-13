@@ -1,0 +1,23 @@
+﻿@using System.Security.Claims;
+@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@*get User Name*@
+@*<h1>user name : @User.Identity.Name</h1>*@
+
+@*get User ID*@
+@*<h2>user id : @User.FindFirstValue(ClaimTypes.NameIdentifier)</h2>*@
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 img-thumbnail" style="padding:2px; margin-top:2px">
+            <img style="width:300px" class="img-thumbnail" src="/Images/@item.ImageName" />
+            <h3 class="text-center">@item.Title</h3>
+            <p class="text-center text-primary"> @item.Price Toman</p>
+            <a class="btn btn-success" style="width:100%" asp-controller="order" asp-action="AddToCard" asp-route-id="@item.ProductId">Add To Card</a>
+        </div>
+    }
+</div>
