@@ -1,0 +1,12 @@
+﻿zarrinpal: 
+
+Test : 
+install-package ZarinPalSandbox -Version 2.0.4
+
+live :
+install-package ZarinPal -Version 2.0.5
+
+----------------------------------------------------------
+
+https://www.quartz-scheduler.net/documentation/quartz-3.x/tutorial/crontriggers.html#example-cron-expressions
+https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html

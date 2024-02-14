@@ -1,0 +1,53 @@
+﻿@using System.Security.Claims;
+@model IEnumerable<Basket.Models.ViewModels.ShowOrderViewModel>
+@{
+    ViewData["Title"] = "Show Orders";
+    Layout = "_Layout";
+    int row = 1;
+}
+
+<h2>Show Faktor</h2>
+<hr />
+
+<table class="table table-bordered" style="direction:rtl">
+    <tr>
+        <th>#</th>
+        <th>تصویر</th>
+        <th>عنوان</th>
+        <th>تعداد</th>
+        <th>قیمت</th>
+        <th>حمع</th>
+        <th></th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@row</td>
+            <td>
+                <img src="/Images/@item.ImageName" style="max-width:100px; border-radius:50%;" />
+            </td>
+            <td>@item.Title</td>
+            <td>@item.Count</td>
+            <td>@item.price</td>
+            <td>@item.Sum</td>
+            <td>
+                <a class="btn btn-sm btn-success" href="/Order/Command_Order/@item.OrderDetailid?command=up">Up</a>
+                <a asp-action="Delete_Order" asp-controller="Order" asp-route-id="@item.OrderDetailid" class="btn btn-sm btn-danger">Delete</a>
+                <a class="btn btn-sm btn-info" href="/Order/Command_Order/@item.OrderDetailid?command=down">Down</a>
+            </td>
+
+        </tr>
+        row += 1;
+    }
+
+    <tr>
+        <td colspan="5" class="text-black"> جمع کل فاکتور</td>
+        <td colspan="2">@Model.Sum(s=>s.Sum)</td>
+    </tr>
+    <tr>
+        <td colspan="4" class="text-black"></td>
+        <td colspan="3">
+            <a class="btn btn-primary" style="width:100%" asp-action="Payment" asp-controller="Order">Payment Basket</a>
+        </td>
+    </tr>
+</table>

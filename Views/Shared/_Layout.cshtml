@@ -33,12 +33,15 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3 container">
-            <div class="col-md-3">
-
-            </div>
-            <div class="col-md-9">
-                @RenderBody()
-            </div>
+           <div class="row">
+                <div class="col-md-9">
+                    @RenderBody()
+                </div>
+                <div class="col-md-3">
+                    @await Component.InvokeAsync("Cart")
+                </div>
+                
+           </div>
         </main>
     </div>
 

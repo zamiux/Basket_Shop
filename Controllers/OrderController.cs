@@ -1,8 +1,10 @@
 ﻿using Basket.Data;
 using Basket.Models;
+using Basket.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using ZarinpalSandbox;
 
 namespace Basket.Controllers
 {
@@ -86,7 +88,98 @@ namespace Basket.Controllers
             return Redirect("/");
         }
 
+        public IActionResult ShowOrder()
+        {
+            string UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Order order_data = _context.Orders.SingleOrDefault(o => o.UserId == UserId && o.isFinally == false);
 
-        
+            List<ShowOrderViewModel> FaktorModel = new List<ShowOrderViewModel>();
+
+            if (order_data != null) //faktor baz dara
+            {
+                var details = _context.OrderDetails.Where(od => od.OrderId == order_data.OrderId).ToList();
+                foreach (var item in details)
+                {
+                    var product_data = _context.Products.Find(item.ProductId);
+
+                    FaktorModel.Add(new ShowOrderViewModel
+                    {
+                        Count = item.Count,
+                        ImageName = product_data.ImageName,
+                        Title = product_data.Title,
+                        OrderDetailid = item.OrderDetailId,
+                        price = item.Price,
+                        Sum = (item.Count * item.Price)
+                    });
+                }
+            }
+
+            return View(FaktorModel);
+        }
+
+
+        public IActionResult Delete_Order(int id)
+        {
+            var orderdetails = _context.OrderDetails.Find(id);
+            
+                _context.OrderDetails.Remove(orderdetails);
+                _context.SaveChanges();
+
+            return RedirectToAction("ShowOrder");
+        }
+
+        public IActionResult Command_Order(int id,string command)
+        {
+            var orderdetails = _context.OrderDetails.Find(id);
+
+            switch (command)
+            {
+                case "up":
+                    {
+                        orderdetails.Count += 1;
+                        _context.OrderDetails.Update(orderdetails);
+                        break;
+                    }
+                case "down":
+                    {
+                        orderdetails.Count -= 1;
+                        if (orderdetails.Count == 0)
+                        {
+                            _context.OrderDetails.Remove(orderdetails);
+                        }
+                        else
+                        {
+                            _context.OrderDetails.Update(orderdetails);
+                        }
+                        break;
+                    }
+            }
+            _context.SaveChanges();
+
+            return RedirectToAction("ShowOrder");
+        }
+
+       public IActionResult Payment()
+        {
+            var order_data = _context.Orders.SingleOrDefault(o => o.isFinally == false);
+            if (order_data == null)
+            {
+                return NotFound();
+            }
+
+            var payment = new Payment(order_data.SumOrder);
+            //request to zarin pal
+            var res = payment.PaymentRequest($"Pardakht faktor shoamre: {order_data.OrderId}", $"http://localhost:5003/Home/OnlinePayment/{order_data.OrderId}","mohsen.1408@gmail.com","09126097035");
+            if (res.Result.Status == 100) // yani ok payment is ok
+            {
+                return Redirect("https://sandbox.zarinpal.com/pg/StartPay/"+res.Result.Authority);
+            }
+            else
+            {
+                return BadRequest();
+            }
+            
+            return View();
+        }
     }
 }

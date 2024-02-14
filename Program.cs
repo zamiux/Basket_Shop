@@ -1,6 +1,10 @@
 using Basket.Data;
+using Basket.Jobs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,21 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+#region Quartz
+//ser Service Job Scheduler
+builder.Services.AddSingleton<IJobFactory, SingletonJobFaktory>();
+builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+
+
+// Add job Name for Service
+builder.Services.AddSingleton<RemoveCartJob>();
+// Set Schedule Time for "RemoveCartJob" Job 
+builder.Services.AddSingleton(new JobScheduler(JobType:typeof(RemoveCartJob),CronExperssion:"0.5 * * * * ?"));
+
+// start job
+builder.Services.AddHostedService<QuartzHostdService>();
+#endregion
 
 var app = builder.Build();
 
